@@ -1,11 +1,13 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
+VISUAL_STRING_LENGTH = 20
+MAX_STRING_LENGTH = 256
 
 User = get_user_model()
 
 
-class BaseModel(models.Model):
+class BasicInfoModel(models.Model):
     is_published = models.BooleanField(
         default=True,
         verbose_name='Опубликовано',
@@ -18,8 +20,9 @@ class BaseModel(models.Model):
         abstract = True
 
 
-class Category(BaseModel):
-    title = models.CharField(max_length=256, verbose_name='Заголовок')
+class Category(BasicInfoModel):
+    title = models.CharField(
+        max_length=MAX_STRING_LENGTH, verbose_name='Заголовок')
     description = models.TextField(verbose_name='Описание')
     slug = models.SlugField(
         max_length=64,
@@ -34,22 +37,24 @@ class Category(BaseModel):
         verbose_name_plural = 'Категории'
 
     def __str__(self):
-        return self.title
+        return self.title[:VISUAL_STRING_LENGTH]
 
 
-class Location(BaseModel):
-    name = models.CharField(max_length=256, verbose_name='Название места')
+class Location(BasicInfoModel):
+    name = models.CharField(max_length=MAX_STRING_LENGTH,
+                            verbose_name='Название места')
 
     class Meta:
         verbose_name = 'местоположение'
         verbose_name_plural = 'Местоположения'
 
     def __str__(self):
-        return self.name
+        return self.name[:VISUAL_STRING_LENGTH]
 
 
-class Post(BaseModel):
-    title = models.CharField(max_length=256, verbose_name='Заголовок')
+class Post(BasicInfoModel):
+    title = models.CharField(
+        max_length=MAX_STRING_LENGTH, verbose_name='Заголовок')
     text = models.TextField(verbose_name='Текст')
     pub_date = models.DateTimeField(
         verbose_name='Дата и время публикации',
@@ -83,4 +88,4 @@ class Post(BaseModel):
         verbose_name_plural = 'Публикации'
 
     def __str__(self):
-        return self.title
+        return self.title[:VISUAL_STRING_LENGTH]

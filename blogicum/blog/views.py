@@ -7,22 +7,35 @@ from blog.models import Post, Category
 POSTS_LIMIT = 5
 
 
-def index(request):
-    template = 'blog/index.html'
-
-    post_list = (
-        Post.objects
-        .filter(is_published=True,
+def get_post_list(category=None):
+    if category is None:
+        post_list = (
+            Post.objects
+            .filter(
+                is_published=True,
                 category__is_published=True,
                 pub_date__lte=Now(),
-                ).order_by('pub_date')
-    )[:POSTS_LIMIT]
-    context = {'post_list': post_list}
-    return render(request, template, context)
+            ).order_by('pub_date')
+        )[:POSTS_LIMIT]
+    else:
+        post_list = (
+            Post.objects
+            .filter(
+                category=category,
+                is_published=True,
+                category__is_published=True,
+                pub_date__lte=Now(),
+            ).order_by('pub_date')
+        )
+    return post_list
+
+
+def index(request):
+    context = {'post_list': get_post_list()}
+    return render(request, 'blog/index.html', context)
 
 
 def post_detail(request, post_id):
-    template = 'blog/detail.html'
     post = get_object_or_404(
         Post.objects.filter(
             is_published=True,
@@ -33,25 +46,17 @@ def post_detail(request, post_id):
     context = {
         'post': post
     }
-    return render(request, template, context)
+    return render(request, 'blog/detail.html', context)
 
 
 def category_posts(request, category_slug):
-    template = 'blog/category.html'
     category = get_object_or_404(
         Category,
         slug=category_slug,
         is_published=True,
     )
-    post_list = (
-        Post.objects
-        .filter(category=category,
-                is_published=True,
-                pub_date__lte=Now()
-                ).order_by('pub_date')
-    )
     context = {
         'category': category,
-        'post_list': post_list,
+        'post_list': get_post_list(category),
     }
-    return render(request, template, context)
+    return render(request, 'blog/category.html', context)
