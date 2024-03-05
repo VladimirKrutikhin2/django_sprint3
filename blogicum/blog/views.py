@@ -8,25 +8,19 @@ POSTS_LIMIT = 5
 
 
 def get_post_list(category=None):
-    if category is None:
-        post_list = (
-            Post.objects
-            .filter(
-                is_published=True,
-                category__is_published=True,
-                pub_date__lte=Now(),
-            ).order_by('pub_date')
-        )[:POSTS_LIMIT]
+    post_list = (
+        Post.objects
+        .filter(
+            is_published=True,
+            category__is_published=True,
+            pub_date__lte=Now(),
+        ).order_by('pub_date')
+    )
+    if category is not None:
+        post_list = post_list.filter(category=category,)
     else:
-        post_list = (
-            Post.objects
-            .filter(
-                category=category,
-                is_published=True,
-                category__is_published=True,
-                pub_date__lte=Now(),
-            ).order_by('pub_date')
-        )
+        post_list = post_list[:POSTS_LIMIT]
+
     return post_list
 
 
